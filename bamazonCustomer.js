@@ -61,7 +61,7 @@ function options(){
                   }
                 ]
             );
-            console.log("Your total is: " + res[item-1].price + "!!!!! Thank you for your business!");
+            console.log("Your total is: " + res[item-1].price*answer.quantity + "!!!!! Thank you for your business!");
             inquirer
             .prompt([
             {
