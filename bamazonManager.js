@@ -70,11 +70,11 @@ function displayLowInventory(){
       for (var i = 0; i < res.length; i++) {
         console.log(res[i].product_name);
       }
-      options();
+      setTimeout(function(){ options(); }, 3000);
     });
   }
 
-function addInventory() {
+function addProduct() {
     console.log("Adding a new product...\n");
     inquirer
     .prompt([
@@ -114,41 +114,49 @@ function addInventory() {
       }
     );
       console.log(query.sql);
-      options()
+      setTimeout(function(){ options(); }, 3000);
   });
 }
 
 function addInventory() {
-    console.log("Updating product\n");
-    inquirer
-    .prompt([
-      {
-        name: "product_name",
-        type: "input",
-        message: "What item would you like to update?"
-      },
-      {
-        name: "stock_quantity",
-        type: "input",
-        message: "How much of this item are you adding?",
-      }
-    ]).then(function(answer) {
-    var query = connection.query(
-      "UPDATE products SET ? WHERE ?",
-      [
-        {
-          stock_quantity: stock_quantity+answer.stock_quantity
-        },
-        {
-          product_name: product_name
-        }
-      ],
-      function(err, res) {
-        console.log(res.affectedRows + " products updated!\n");
-      }
-    );
-});
-  
-    // logs the actual query being run
-    console.log(query.sql);
+    connection.query("SELECT * FROM products", function(err, res) {
+        if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              name: "product",
+              type: "list",
+              choices: function() {
+                var productChoices = [];
+                for (var i = 0; i < res.length; i++) {
+                  productChoices.push(res[i].product_name);
+                }
+                return productChoices;
+              },
+              message: "Which product would you like to update the quantity of?"
+            },
+            {
+              name: "quantity",
+              type: "input",
+              message: "What is the new quantity??"
+            }
+          ])
+          .then(function(answer) {
+            connection.query(
+            "UPDATE products SET ? WHERE ?",
+            [
+                {
+                stock_quantity: answer.quantity
+                },
+                {
+                product_name: answer.product
+                }
+            ],
+            function(err, res) {
+                console.log(res.affectedRows + " products updated!\n");
+                setTimeout(function(){ options(); }, 3000);
+            }
+            );
+        });
+  });
 }
